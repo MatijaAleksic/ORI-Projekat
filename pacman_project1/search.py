@@ -94,7 +94,6 @@ def depthFirstSearch(problem):
 
     while stek.isEmpty() == 0:
         stanje, akcije = stek.pop()
-
         for naslednik in problem.getSuccessors(stanje): #naslednici ovog stanja
             naslednikovo_stanje = naslednik[0]
             naslednikova_putanja = naslednik[1]
@@ -108,7 +107,22 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    red = util.Queue()
+    poseceni = []
+    red.push((problem.getStartState(), []))
+    poseceni.append(problem.getStartState())
+
+    while red.isEmpty() == 0:
+        stanje, akcije = red.pop()
+
+        for naslednik in problem.getSuccessors(stanje):#naslednici od trenutnog stanja
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                if problem.isGoalState(naslednikovo_stanje):
+                    return akcije + [naslednikova_putanja] #nasao konacno stanje
+                red.push((naslednikovo_stanje, akcije + [naslednikova_putanja]))
+                poseceni.append(naslednikovo_stanje)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
