@@ -155,11 +155,42 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem, heuristic=nullHeuristic):
+def manhattanHeuristic(position, problem, info={}):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem.goal
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+def euclideanHeuristic(position, problem, info={}):
+    "The Euclidean distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem.goal
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
+
+def aStarSearch(problem, heuristic=euclideanHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    PRed = util.PriorityQueue()
+    poseceni = []
+    PRed.push((problem.getStartState(), []), heuristic(problem.getStartState(), problem))
+    poseceni.append( problem.getStartState() )
 
+    while PRed.isEmpty() == 0:
+        stanje, akcije = PRed.pop()
+
+        if problem.isGoalState(stanje):
+            return akcije
+
+        if stanje not in poseceni:
+            poseceni.append(stanje)
+
+        for naslednik in problem.getSuccessors(stanje):
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                PRed.update((naslednikovo_stanje, akcije + [naslednikova_putanja]),
+                            problem.getCostOfActions(akcije+[naslednikova_putanja])+heuristic(naslednikovo_stanje, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
