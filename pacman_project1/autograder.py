@@ -1,8 +1,9 @@
 import json
 import argparse
 import glob
+import os
 
-import pacman
+from pacman_project1 import pacman
 
 
 def get_test_cases():

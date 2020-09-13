@@ -16,8 +16,9 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
+import heapq
 
-import util
+from pacman_project1 import util
 
 class SearchProblem:
     """
@@ -67,7 +68,7 @@ def tinyMazeSearch(problem):
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
     sequence of moves will be incorrect, so only use this for tinyMaze.
     """
-    from game import Directions
+    from pacman_project1.game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
@@ -87,17 +88,65 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stek = util.Stack()
+    poseceni = []
+    stek.push((problem.getStartState(), []))
+    poseceni.append(problem.getStartState())
+
+    while stek.isEmpty() == 0:
+        stanje, akcije = stek.pop()
+        for naslednik in problem.getSuccessors(stanje): #naslednici ovog stanja
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                if problem.isGoalState(naslednikovo_stanje): #dosao do zadnjeg state
+                    return akcije + [naslednikova_putanja]
+                else:
+                    stek.push((naslednikovo_stanje, akcije + [naslednikova_putanja]))
+                    poseceni.append(naslednikovo_stanje)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    red = util.Queue()
+    poseceni = []
+    red.push((problem.getStartState(), []))
+    poseceni.append(problem.getStartState())
+
+    while red.isEmpty() == 0:
+        stanje, akcije = red.pop()
+
+        for naslednik in problem.getSuccessors(stanje):#naslednici od trenutnog stanja
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                if problem.isGoalState(naslednikovo_stanje):
+                    return akcije + [naslednikova_putanja] #nasao konacno stanje
+                red.push((naslednikovo_stanje, akcije + [naslednikova_putanja]))
+                poseceni.append(naslednikovo_stanje)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    PRed = util.PriorityQueue()
+    poseceni = []
+    PRed.push( (problem.getStartState(), []), 0 )
+    poseceni.append( problem.getStartState() )
+
+    while PRed.isEmpty() == 0:
+        stanje, akcije = PRed.pop()
+
+        if problem.isGoalState(stanje):
+            return akcije
+
+        if stanje not in poseceni:
+            poseceni.append(stanje)
+
+        for naslednik in problem.getSuccessors(stanje):
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                PRed.update((naslednikovo_stanje,akcije+[naslednikova_putanja]), problem.getCostOfActions(akcije+[naslednikova_putanja]))
 
 def nullHeuristic(state, problem=None):
     """
@@ -106,11 +155,42 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+def manhattanHeuristic(position, problem):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem.goal
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+def euclideanHeuristic(position, problem):
+    "The Euclidean distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem.goal
+    return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    PRed = util.PriorityQueue()
+    poseceni = []
+    PRed.push((problem.getStartState(), []), heuristic(problem.getStartState(), problem))
+    poseceni.append( problem.getStartState() )
 
+    while PRed.isEmpty() == 0:
+        stanje, akcije = PRed.pop()
+
+        if problem.isGoalState(stanje):
+            return akcije
+
+        if stanje not in poseceni:
+            poseceni.append(stanje)
+
+        for naslednik in problem.getSuccessors(stanje):
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                PRed.update((naslednikovo_stanje, akcije + [naslednikova_putanja]),
+                            problem.getCostOfActions(akcije+[naslednikova_putanja])+heuristic(naslednikovo_stanje, problem))
 
 # Abbreviations
 bfs = breadthFirstSearch
