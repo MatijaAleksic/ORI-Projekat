@@ -16,6 +16,7 @@
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
+import heapq
 
 from pacman_project1 import util
 
@@ -127,7 +128,25 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    PRed = util.PriorityQueue()
+    poseceni = []
+    PRed.push( (problem.getStartState(), []), 0 )
+    poseceni.append( problem.getStartState() )
+
+    while PRed.isEmpty() == 0:
+        stanje, akcije = PRed.pop()
+
+        if problem.isGoalState(stanje):
+            return akcije
+
+        if stanje not in poseceni:
+            poseceni.append(stanje)
+
+        for naslednik in problem.getSuccessors(stanje):
+            naslednikovo_stanje = naslednik[0]
+            naslednikova_putanja = naslednik[1]
+            if naslednikovo_stanje not in poseceni:
+                PRed.update((naslednikovo_stanje,akcije+[naslednikova_putanja]), problem.getCostOfActions(akcije+[naslednikova_putanja]))
 
 def nullHeuristic(state, problem=None):
     """
