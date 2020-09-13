@@ -44,7 +44,7 @@ class MyAgent(Agent):
         problem = AnyFoodSearchProblem(gameState, self.index)
 
         "*** YOUR CODE HERE ***"
-        actions = search.ucs(problem)
+        actions = search.astar(problem)
         return actions
 
     def getAction(self, state):

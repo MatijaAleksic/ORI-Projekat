@@ -168,7 +168,7 @@ def euclideanHeuristic(position, problem):
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
 
-def aStarSearch(problem, heuristic=euclideanHeuristic):
+def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     PRed = util.PriorityQueue()
