@@ -34,12 +34,12 @@ description for details.
 Good luck and happy searching!
 """
 
-from game import Directions
-from game import Agent
-from game import Actions
-import search
+from pacman_project1.game import Directions
+from pacman_project1.game import Agent
+from pacman_project1.game import Actions
+from pacman_project1 import  search
 
-import util
+from pacman_project1 import util
 import time
 import random
 

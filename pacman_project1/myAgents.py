@@ -11,19 +11,20 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-from game import Agent
-from searchProblems import PositionSearchProblem
+from pacman_project1.game import Agent
+from pacman_project1.searchProblems import PositionSearchProblem
 
-import util
+from pacman_project1 import util
 import time
-import search
+from pacman_project1 import search
+from pacman_project1.pacman import GameState as gameState
 
 """
 IMPORTANT
 `agent` defines which agent you will use. By default, it is set to ClosestDotAgent,
 but when you're ready to test your own agent, replace it with MyAgent
 """
-def createAgents(num_pacmen, agent='ClosestDotAgent'):
+def createAgents(num_pacmen, agent='MyAgent'):
     return [eval(agent)(index=i) for i in range(num_pacmen)]
 
 class MyAgent(Agent):
@@ -31,14 +32,28 @@ class MyAgent(Agent):
     Implementation of your agent.
     """
 
+    def findFoodPath(self, gameState):
+        """
+        Returns a path (a list of actions) to the closest dot, starting from
+        gameState.
+        """
+        # Here are some useful elements of the startState
+        startPosition = gameState.getPacmanPosition(self.index)
+        food = gameState.getFood()
+        walls = gameState.getWalls()
+        problem = AnyFoodSearchProblem(gameState, self.index)
+
+        "*** YOUR CODE HERE ***"
+        actions = search.ucs(problem)
+        return actions
+
     def getAction(self, state):
         """
         Returns the next action the agent will take
         """
 
         "*** YOUR CODE HERE ***"
-
-        raise NotImplementedError()
+        return self.findFoodPath(state)[0]
 
     def initialize(self):
         """
@@ -48,8 +63,7 @@ class MyAgent(Agent):
         """
 
         "*** YOUR CODE HERE"
-
-        raise NotImplementedError()
+        #raise NotImplementedError()
 
 """
 Put any other SearchProblems or search methods below. You may also import classes/methods in
@@ -68,10 +82,9 @@ class ClosestDotAgent(Agent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState, self.index)
-
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = search.dfs(problem)
+        return actions
 
     def getAction(self, state):
         return self.findPathToClosestDot(state)[0]
@@ -110,5 +123,5 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 

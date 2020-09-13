@@ -12,8 +12,9 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from util import manhattanDistance
-from game import Grid
+from pacman_project1.util import manhattanDistance
+from pacman_project1.game import Grid
+import pacman_project1.game
 import os
 import random
 from functools import reduce
@@ -82,7 +83,7 @@ class Layout:
     def initializeVisibilityMatrix(self):
         global VISIBILITY_MATRIX_CACHE
         if reduce(str.__add__, self.layoutText) not in VISIBILITY_MATRIX_CACHE:
-            from game import Directions
+            from pacman_project1.game import Directions
             vecs = [(-0.5,0), (0.5,0),(0,-0.5),(0,0.5)]
             dirs = [Directions.NORTH, Directions.SOUTH, Directions.WEST, Directions.EAST]
             vis = Grid(self.width, self.height, {Directions.NORTH:set(), Directions.SOUTH:set(), Directions.EAST:set(), Directions.WEST:set(), Directions.STOP:set()})

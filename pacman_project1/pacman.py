@@ -39,13 +39,13 @@ code to run a game.  This file is divided into three sections:
 To play your first game, type 'python pacman.py' from the command line.
 The keys are 'a', 's', 'd', and 'w' to move (or arrow keys).  Have fun!
 """
-from game import GameStateData
-from game import Game
-from game import Directions
-from game import Actions
-from util import nearestPoint
-from util import manhattanDistance
-import util, layout
+from pacman_project1.game import GameStateData
+from pacman_project1.game import Game
+from pacman_project1.game import Directions
+from pacman_project1.game import Actions
+from pacman_project1.util import nearestPoint
+from pacman_project1.util import manhattanDistance
+from pacman_project1 import util, layout
 import sys, types, time, random, os
 
 ###################################################

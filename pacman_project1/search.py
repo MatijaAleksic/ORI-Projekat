@@ -68,7 +68,7 @@ def tinyMazeSearch(problem):
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
     sequence of moves will be incorrect, so only use this for tinyMaze.
     """
-    from game import Directions
+    from pacman_project1.game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
@@ -155,13 +155,13 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def manhattanHeuristic(position, problem, info={}):
+def manhattanHeuristic(position, problem):
     "The Manhattan distance heuristic for a PositionSearchProblem"
     xy1 = position
     xy2 = problem.goal
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
-def euclideanHeuristic(position, problem, info={}):
+def euclideanHeuristic(position, problem):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     xy1 = position
     xy2 = problem.goal

@@ -12,9 +12,9 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from graphicsUtils import *
+from pacman_project1.graphicsUtils import *
 import math, time
-from game import Directions
+from pacman_project1.game import Directions
 
 ###########################
 #  GRAPHICS DISPLAY CODE  #
