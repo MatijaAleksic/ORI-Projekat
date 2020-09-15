@@ -1,7 +1,6 @@
 from __future__ import print_function
 import numpy, random, copy
 
-
 class Cluster(object):
 
     def __init__(self, center):
@@ -69,6 +68,7 @@ class KMeans(object):
 
             print("Iter no: " + str(iter_no))
             iter_no += 1
+        return self
 
     def predict(self, datum):
         # podatak pripada onom klasteru cijem je centru najblizi (po euklidskoj udaljenosti)
