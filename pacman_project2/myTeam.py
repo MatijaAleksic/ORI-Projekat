@@ -12,17 +12,19 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from captureAgents import CaptureAgent
-import random, time, util
-from game import Directions
-import game
+from pacman_project2.captureAgents import CaptureAgent
+import random, time
+from pacman_project2 import util
+from pacman_project2 import game
+from pacman_project2.util import nearestPoint
+from pacman_project2.game import Directions, Actions
 
 #################
 # Team creation #
 #################
 
 def createTeam(firstIndex, secondIndex, isRed,
-               first = 'DummyAgent', second = 'DummyAgent'):
+               first = 'OffensiveAgent', second = 'DefensiveAgent'):
   """
   This function should return a list of two agents that will form the
   team, initialized using firstIndex and secondIndex as their agent
@@ -45,48 +47,69 @@ def createTeam(firstIndex, secondIndex, isRed,
 # Agents #
 ##########
 
-class DummyAgent(CaptureAgent):
-  """
-  A Dummy agent to serve as an example of the necessary agent structure.
-  You should look at baselineTeam.py for more details about how to
-  create an agent as this is the bare minimum.
-  """
+class OffensiveAgent(CaptureAgent):
 
   def registerInitialState(self, gameState):
-    """
-    This method handles the initial setup of the
-    agent to populate useful fields (such as what team
-    we're on).
-
-    A distanceCalculator instance caches the maze distances
-    between each pair of positions, so your agents can use:
-    self.distancer.getDistance(p1, p2)
-
-    IMPORTANT: This method may run for at most 15 seconds.
-    """
-
-    '''
-    Make sure you do not delete the following line. If you would like to
-    use Manhattan distances instead of maze distances in order to save
-    on initialization time, please take a look at
-    CaptureAgent.registerInitialState in captureAgents.py.
-    '''
+    self.observationHistory = []
+    self.start = gameState.getAgentPosition(self.index)
     CaptureAgent.registerInitialState(self, gameState)
 
-    '''
-    Your initialization code goes here, if you need any.
-    '''
-
+  def getSuccessor(self, gameState, action):
+    successor = gameState.generateSuccessor(self.index, action)
+    pos = successor.getAgentState(self.index).getPosition()
+    if pos != util.nearestPoint(pos):
+      return successor.generateSuccessor(self.index, action)
+    else:
+      return successor
 
   def chooseAction(self, gameState):
-    """
-    Picks among actions randomly.
-    """
     actions = gameState.getLegalActions(self.index)
+    values = [self.evaluate(gameState, a) for a in actions]
+    maxValue = max(values)
+    bestActions = [a for a, v in zip(actions, values) if v == maxValue]
+    return random.choice(bestActions)
 
-    '''
-    You should change this in your own agent.
-    '''
+  def evaluate(self, gameState, action):
+    features = self.getFeatures(gameState, action)
+    weights = self.getWeights(gameState, action)
+    return features * weights
 
-    return random.choice(actions)
+  def getFeatures(self, gameState, action):
+    util.raiseNotDefined()
 
+  def getWeights(self, gameState, action):
+    util.raiseNotDefined()
+
+
+class DefensiveAgent(CaptureAgent):
+
+  def registerInitialState(self, gameState):
+    self.observationHistory = []
+    self.start = gameState.getAgentPosition(self.index)
+    CaptureAgent.registerInitialState(self, gameState)
+
+  def getSuccessor(self, gameState, action):
+    successor = gameState.generateSuccessor(self.index, action)
+    pos = successor.getAgentState(self.index).getPosition()
+    if pos != util.nearestPoint(pos):
+      return successor.generateSuccessor(self.index, action)
+    else:
+      return successor
+
+  def evaluate(self, gameState, action):
+    features = self.getFeatures(gameState, action)
+    weights = self.getWeights(gameState, action)
+    return features * weights
+
+  def chooseAction(self, gameState):
+    actions = gameState.getLegalActions(self.index)
+    values = [self.evaluate(gameState, a) for a in actions]
+    maxValue = max(values)
+    bestActions = [a for a, v in zip(actions, values) if v == maxValue]
+    return random.choice(bestActions)
+
+  def getFeatures(self, gameState, action):
+    util.raiseNotDefined()
+
+  def getWeights(self, gameState, action):
+    util.raiseNotDefined()
