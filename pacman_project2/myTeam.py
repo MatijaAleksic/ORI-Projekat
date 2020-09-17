@@ -92,23 +92,22 @@ class OffensiveAgent(CaptureAgent):
         newx = int(x + vx)
         newy = int(y + vy)
 
-        enemies = [gameState.getAgentState(a) for a in self.getOpponents(gameState)]
-        defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
-        invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
 
         safeHouse = [(15, x) for x in range(0, 16)]
         wallsSafeHouse = walls[15]
         safeHouseNoWalls = []
         for i in range(len(wallsSafeHouse)):
-          if not wallsSafeHouse[i]:
-            safeHouseNoWalls.append(safeHouse[i])
-
+            if not wallsSafeHouse[i]:
+                safeHouseNoWalls.append(safeHouse[i])
         safeHouseDistances = [self.getMazeDistance((newx, newy), safe) for safe in safeHouseNoWalls]
 
-        if food.count(True) + self.getScore(gameState) != 20 and food.count(True) + self.getScore(gameState) < 19:
-          notZero = min(safeHouseDistances)+1
-          features["runHome"] = 100 / notZero
+        enemies = [gameState.getAgentState(a) for a in self.getOpponents(gameState)]
+        defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
+        invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
 
+        # ako stane
+        if action == Directions.STOP:
+            features['stop'] = 1
 
         # funkcija za invadere
         for ghost in invaders:
@@ -131,12 +130,14 @@ class OffensiveAgent(CaptureAgent):
             disInvador = self.getMazeDistance((newx, newy), ghost.getPosition())
             if (newx, newy) == ghostpos:
                 if ghost.scaredTimer == 0:
-                    features["run"] = 2
+                    dist = self.getMazeDistance((newx, newy), ghost.getPosition()) + 1
+                    features["run"] = 75 / dist
                 else:
                     features["eatEnemy"] = 2
             elif disInvador < 3:
                 if ghost.scaredTimer == 0:
-                    features["run"] = 1
+                    dist = self.getMazeDistance((newx, newy), ghost.getPosition()) + 1
+                    features["run"] = 75 / dist
                 else:
                     features["eatEnemy"] = 1
 
@@ -151,20 +152,26 @@ class OffensiveAgent(CaptureAgent):
 
         #funkcija za hranu
         if food[newx][newy]:
-            features["eatFood"] = 1.0
+            features["eatFood"] = 1
         if len(foodList) > 0:
             mazedist = [self.getMazeDistance((newx, newy), food) for food in foodList]
             if min(mazedist) is not None:
                 walldimensions = walls.width * walls.height
                 features["nearbyFood"] = float(min(mazedist)) / walldimensions
 
-        print(features)
+        # kada sakupi hranu da se vrati
+        if food.count(True) + self.getScore(gameState) != 20 and food.count(True) + self.getScore(gameState) < 19:
+            ghostdist = [self.getMazeDistance((newx, newy), ghost.getPosition()) for ghost in defenders]
+            if(min(ghostdist) < 15):
+                notZero = min(safeHouseDistances) + 1
+                features["runHome"] = 100 / notZero
+
         return features
 
     def getWeights(self, gameState, action):
         return {'eatFood': 10, 'eatEnemy': 15, 'eatCapsule': 20,
                 'nearbyFood': -1.0, "nearbyCapsules": 1.0,
-                'run': -10, 'runHome': 100}
+                'run': -100, 'runHome': 80, 'stop' : -1000}
 
 
 class DefensiveAgent(CaptureAgent):
@@ -195,7 +202,66 @@ class DefensiveAgent(CaptureAgent):
         return random.choice(bestActions)
 
     def getFeatures(self, gameState, action):
-        util.raiseNotDefined()
+        features = util.Counter()
+        successor = self.getSuccessor(gameState, action)
+        myState = successor.getAgentState(self.index)
+        myPos = myState.getPosition()
+        walls = gameState.getWalls()
+        food = self.getFood(gameState)
+        foodList = food.asList()
+
+        enemies = [gameState.getAgentState(a) for a in self.getOpponents(gameState)]
+        defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
+        invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+
+        x, y = gameState.getAgentState(self.index).getPosition()
+        vx, vy = Actions.directionToVector(action)
+        newx = int(x + vx)
+        newy = int(y + vy)
+        teamNums = self.getTeam(gameState)
+
+        features['numInvaders'] = len(invaders)
+
+        #ako stane
+        if action == Directions.STOP: features['stop'] = 1
+
+        #ako ga tezine nameste da ide u korak u nazad
+        rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
+        if action == rev: features['reverse'] = 1
+
+        features['stayApart'] = self.getMazeDistance(gameState.getAgentPosition(teamNums[0]),
+                                                     gameState.getAgentPosition(teamNums[1]))
+
+        # ima invadera
+        if len(invaders) > 0:
+            dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
+            features['invaderDistance'] = min(dists)
+            if (successor.getAgentState(self.index).scaredTimer > 0):
+                features['numInvaders'] = 0
+                if (features['invaderDistance'] <= 3):
+                    features['invaderDistance'] = 3
+
+        #nema invadera
+        if len(invaders) == 0:
+            if successor.getScore() != 0:
+                features['eatFood'] = min([self.getMazeDistance(myPos, food) for food in self.getFood(successor).asList()])
+
+
+            if food[newx][newy]:
+                features["eatFood"] = 1
+            if len(foodList) > 0:
+                mazedist = [self.getMazeDistance((newx, newy), food) for food in foodList]
+                if min(mazedist) is not None:
+                    walldimensions = walls.width * walls.height
+                    features["nearbyFood"] = float(min(mazedist)) / walldimensions
+
+            newLocation = (newx, newy)
+            disInvador = min([self.getMazeDistance(newLocation, ghost.getPosition()) for ghost in defenders]) + 1
+            if disInvador < 3:
+                    features["run"] = 1/disInvador
+
+        return features
 
     def getWeights(self, gameState, action):
-        util.raiseNotDefined()
+        return {'numInvaders': -40000, 'invaderDistance': -1800, 'stop': -400, 'reverse': -250,
+                'stayApart': 10, 'eatFood': 50, 'nearbyFood': -100, 'runHome': 80, 'run': 250}
