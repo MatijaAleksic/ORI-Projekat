@@ -3,6 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+import seaborn
 
 kartice = pandas.read_csv('credit_card_data.csv')
 kartice = kartice.dropna(how='any', axis=0) #izbaci sve NA u redovima
@@ -51,3 +52,6 @@ print(klaster_2.describe())
 
 print('CLUSTER 3')
 print(klaster_3.describe())
+    
+c= kartice.corr()
+seaborn.heatmap(c,cmap="BrBG",annot=True)

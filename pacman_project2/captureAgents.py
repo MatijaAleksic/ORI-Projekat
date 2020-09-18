@@ -88,6 +88,9 @@ class CaptureAgent(Agent):
     # Access to the graphics
     self.display = None
 
+    self.foodEaten = 0
+    self.score = 0
+
   def registerInitialState(self, gameState):
     """
     This method handles the initial setup of the
@@ -151,8 +154,11 @@ class CaptureAgent(Agent):
     move - this occurs because Pacman agents move half as quickly as ghost agents).
 
     """
-    self.observationHistory.append(gameState)
+    expectedScore = self.getFood(gameState).count(True) + self.getScore(gameState)
+    if expectedScore != 20:
+      self.foodEaten = 20 - self.getFood(gameState).count(True)
 
+    self.observationHistory.append(gameState)
     myState = gameState.getAgentState(self.index)
     myPos = myState.getPosition()
     if myPos != nearestPoint(myPos):
